@@ -20,6 +20,8 @@ module Person_conv = struct
   let to_json ({name = name; age = age}: person) : fields =
     {fd1 = name; fd2 = age}
 
+end
+
 let () =
     let json_str = "{\"name\": \"Jonh Do\", \"age\": 38 }" in
     let empty = {name = ""; age = 0} in
