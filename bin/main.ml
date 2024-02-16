@@ -8,12 +8,12 @@ type person =
 
 module Person_conv = struct 
   type t = person
-  type fds = (string, int) field2
+  type fields = (string, int) field2
   
-  let from_json ({fd1 = name; fd2 = age}: fds): t =
+  let from_json ({fd1 = name; fd2 = age}: fields): t =
     {name = name; age = age}
   
-  let to_json ({name = name; age = age}: person) : fds =
+  let to_json ({name = name; age = age}: person) : fields =
     {fd1 = name; fd2 = age}
 
 end
@@ -29,6 +29,13 @@ let () =
   print_ast node_ast;
   let _ = print_string "\n" in
 
+  let _, per =
+    let empty = {name = ""; age = 0} in
+    (node_ast, empty) 
+      |> map (module Json_field_str) "name" (fun v ast -> {ast with name = v})
+      |> map (module Json_field_int) "age" (fun v ast -> {ast with age = v})
+  in
+  print_string ("<< name = " ^ per.name ^ ", age = " ^ (string_of_int per.age) ^ "\n");
   let vals = 
     node_ast |> map2 (field_str "name" "") (field_int "age" 0) |> from_json (module Person_conv)    
   in

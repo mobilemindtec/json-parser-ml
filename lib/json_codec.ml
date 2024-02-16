@@ -1,79 +1,81 @@
 open Json_parser.Parser
 
-module type Json_field_conv = sig
 
-  type t
-  val conv: ast_value -> t option  
-end
-
-module type Json_field = sig
-  type t
-  val field_opt: ast_prop list -> string -> t option
-  
-  val field: ast_prop list -> string -> t -> t
-end 
-
-module Make_json_field(Conv: Json_field_conv): Json_field with type t = Conv.t = struct
-  
-  type t = Conv.t
-  
-  let field_opt (props : ast_prop list) (field_name: string): t option =
-    let p =
-      List.find_opt (fun { name; _ } -> String.compare name field_name == 0) props
-    in
-    match p with
-    | Some { value; _ } -> (
-        match value with
-        | NullLiteral -> None
-        | _ -> Conv.conv value)
-    | None -> None
-    
-
-  let field (props : ast_prop list) (field_name: string) (def_val: t): t =
-    match field_opt props field_name with
-    | Some v -> v
-    | None -> def_val
-
-end 
-
-module Json_field_conv_str = struct
-  type t = string  
-  let conv value =
-    match value with
-    | StringLiteral i -> Some i
-    | _ -> None 
-end
-
-module Json_field_conv_int = struct
-  type t = int  
-  let conv value =
-    match value with
-    | IntegerLiteral i -> Some i
-    | _ -> None 
-end
-
-module Json_field_conv_float = struct
-  type t = float  
-  let conv value =
-    match value with
-    | NumberLiteral i -> Some i
-    | _ -> None 
-end
-
-module Json_field_conv_bool = struct
-  type t = bool
-  let conv value =
-    match value with
-    | BooleanLiteral i -> Some i
-    | _ -> None 
-end
-
-module Json_field_str = Make_json_field(Json_field_conv_str)
-module Json_field_int = Make_json_field(Json_field_conv_int)
-module Json_field_float = Make_json_field(Json_field_conv_float)
-module Json_field_bool = Make_json_field(Json_field_conv_bool)
 
 module Codec = struct
+
+  module type Json_field_conv = sig
+
+    type t
+    val conv: ast_value -> t option  
+  end
+  
+  module type Json_field = sig
+    type t
+    val field_opt: ast_prop list -> string -> t option
+    
+    val field: ast_prop list -> string -> t -> t
+  end 
+  
+  module Make_json_field(Conv: Json_field_conv): Json_field with type t = Conv.t = struct
+    
+    type t = Conv.t
+    
+    let field_opt (props : ast_prop list) (field_name: string): t option =
+      let p =
+        List.find_opt (fun { name; _ } -> String.compare name field_name == 0) props
+      in
+      match p with
+      | Some { value; _ } -> (
+          match value with
+          | NullLiteral -> None
+          | _ -> Conv.conv value)
+      | None -> None
+      
+  
+    let field (props : ast_prop list) (field_name: string) (def_val: t): t =
+      match field_opt props field_name with
+      | Some v -> v
+      | None -> def_val
+  
+  end 
+  
+  module Json_field_conv_str = struct
+    type t = string  
+    let conv value =
+      match value with
+      | StringLiteral i -> Some i
+      | _ -> None 
+  end
+  
+  module Json_field_conv_int = struct
+    type t = int  
+    let conv value =
+      match value with
+      | IntegerLiteral i -> Some i
+      | _ -> None 
+  end
+  
+  module Json_field_conv_float = struct
+    type t = float  
+    let conv value =
+      match value with
+      | NumberLiteral i -> Some i
+      | _ -> None 
+  end
+  
+  module Json_field_conv_bool = struct
+    type t = bool
+    let conv value =
+      match value with
+      | BooleanLiteral i -> Some i
+      | _ -> None 
+  end
+  
+  module Json_field_str = Make_json_field(Json_field_conv_str)
+  module Json_field_int = Make_json_field(Json_field_conv_int)
+  module Json_field_float = Make_json_field(Json_field_conv_float)
+  module Json_field_bool = Make_json_field(Json_field_conv_bool)
 
   let field_opt (type a) (module JsonField: Json_field with type t = a) (field_name: string) (ast: ast_value): a option =
     match ast with
@@ -439,6 +441,22 @@ module Codec = struct
     (module Conv: ADT_conv with type t = t and type fields = fields)
     (data: fields) : t =
     Conv.from_json data
+ 
+  
+
+  let map 
+    (type a) 
+    (module JsonField: Json_field with type t = a) 
+    (field_name: string)
+    (f: a -> 'adt -> 'adt) 
+    (r: (ast_value * 'adt)): ast_value * 'adt =
+    let ast, adt = r in
+    let fval = field_opt (module JsonField) field_name ast in
+    match fval with
+    | Some v -> ast, f v adt
+    | None -> ast, adt
+    
+
 
 end
 
