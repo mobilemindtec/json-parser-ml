@@ -15,8 +15,7 @@ module Person_conv = struct
   
   let to_json ({name = name; age = age}: person) : fields =
     {fd1 = name; fd2 = age}
-
-end
+end    
 
 let json =
   "{\"id\": 1, \"age\": 38, \"name\": \"ricardo\", \"list\": [1, 2, 3], \"list\": [{\"x\": \
@@ -32,8 +31,8 @@ let () =
   let perrson =
     let empty = {name = ""; age = 0} in
     (node_ast, empty) 
-      |> map (module Json_field_str) "name" (fun v ast -> {ast with name = v})
-      |> map (module Json_field_int) "age" (fun v ast -> {ast with age = v})
+      |> map (field_str "name" "") (fun v ast -> {ast with name = v})
+      |> map (field_int "age" 0) (fun v ast -> {ast with age = v})      
       |> data
   in
   print_string ("<< name = " ^ perrson.name ^ ", age = " ^ (string_of_int perrson.age) ^ "\n");

@@ -21,10 +21,12 @@ let json_str = "{\"name\": \"Jonh Do\", \"age\": 38 }"
 
 let empty = {name = ""; age = 0} in
 let node = parse json_str in
+
+(* parse json to ADT*)
 let p =
 (node, empty) 
-    |> map (module Json_field_str) "name" (fun v ast -> {ast with name = v})
-    |> map (module Json_field_int) "age" (fun v ast -> {ast with age = v})
+    |> map (field_str "name" "") (fun v ast -> {ast with name = v})
+    |> map (field_int "age" 0) (fun v ast -> {ast with age = v})      
     |> data
 in
 print_string (">> name = " ^ p.name ^ ", age = " ^ (string_of_int p.age) ^ "\n");
