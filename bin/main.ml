@@ -29,14 +29,16 @@ let () =
   print_ast node_ast;
   let _ = print_string "\n" in
 
-  let _, per =
+  let perrson =
     let empty = {name = ""; age = 0} in
     (node_ast, empty) 
       |> map (module Json_field_str) "name" (fun v ast -> {ast with name = v})
       |> map (module Json_field_int) "age" (fun v ast -> {ast with age = v})
+      |> data
   in
-  print_string ("<< name = " ^ per.name ^ ", age = " ^ (string_of_int per.age) ^ "\n");
+  print_string ("<< name = " ^ perrson.name ^ ", age = " ^ (string_of_int perrson.age) ^ "\n");
   let vals = 
-    node_ast |> map2 (field_str "name" "") (field_int "age" 0) |> from_json (module Person_conv)    
+    let result: (string, int) field2 = node_ast |> map2 (field_str "name" "") (field_int "age" 0)  in
+    result |> from_json (module Person_conv)    
   in
   print_string (">> name = " ^ vals.name ^ ", age = " ^ (string_of_int vals.age) ^ "\n");

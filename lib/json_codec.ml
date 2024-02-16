@@ -449,14 +449,16 @@ module Codec = struct
     (module JsonField: Json_field with type t = a) 
     (field_name: string)
     (f: a -> 'adt -> 'adt) 
-    (r: (ast_value * 'adt)): ast_value * 'adt =
+    (r: ast_value * 'adt): ast_value * 'adt =
     let ast, adt = r in
     let fval = field_opt (module JsonField) field_name ast in
     match fval with
     | Some v -> ast, f v adt
     | None -> ast, adt
     
-
+  let data (r: ast_value * 'adt) : 'adt =
+    let _, adt = r in
+    adt
 
 end
 
