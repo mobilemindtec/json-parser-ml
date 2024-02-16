@@ -47,4 +47,4 @@ let () =
     print_string ("<< name = " ^ person2.name ^ ", age = " ^ (string_of_int person2.age) ^ "\n");
 
 
-    ```
+```
