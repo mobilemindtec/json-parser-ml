@@ -1,7 +1,7 @@
 all: build
 
 exec:
-	dune exec json_parser
+	dune exec json
 
 build:
 	dune build @all
