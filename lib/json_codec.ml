@@ -427,7 +427,7 @@ module Codec = struct
     (ast: ast_value): ('x1, 'x2, 'x3, 'x4, 'x5, 'x6, 'x7, 'x8, 'x9, 'x10, 'x11, 'x12, 'x13, 'x14, 'x15, 'x16, 'x17, 'x18, 'x19, 'x20) field20 =
     {fd1 = f1 ast; fd2 = f2 ast; fd3 = f3 ast; fd4 = f4 ast; fd5 = f5 ast; fd6 = f6 ast; fd7 = f7 ast; fd8 = f8 ast; fd9 = f9 ast; fd10 = f10 ast; fd11 = f11 ast; fd12 = f12 ast; fd13 = f13 ast; fd14 = f14 ast; fd15 = f15 ast; fd16 = f16 ast; fd17 = f17 ast; fd18 = f18 ast; fd19 = f19 ast; fd20 = f20 ast}
   
-  module type ADT_conv = sig
+  module type Record_conv = sig
     type t 
     type fields
 
@@ -438,21 +438,21 @@ module Codec = struct
 
   let from_json 
     (type t) (type fields) 
-    (module Conv: ADT_conv with type t = t and type fields = fields)
+    (module Conv: Record_conv with type t = t and type fields = fields)
     (data: fields) : t =
     Conv.from_json data
  
   let map 
     (fconv: 'a conv) 
-    (f: 'a -> 'adt -> 'adt) 
-    (r: ast_value * 'adt): ast_value * 'adt =
-    let ast, adt = r in
-    let fval = fconv ast in
-    ast, f fval adt
+    (f: 'a -> 'record -> 'record) 
+    (r: ast_value * 'record): ast_value * 'record =
+    let node, record = r in
+    let fval = fconv node in
+    node, f fval record
     
-  let data (r: ast_value * 'adt) : 'adt =
-    let _, adt = r in
-    adt
+  let data (r: ast_value * 'record) : 'record =
+    let _, record = r in
+    record
 
 end
 

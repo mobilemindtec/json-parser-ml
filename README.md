@@ -25,16 +25,16 @@ let () =
     let empty = {name = ""; age = 0} in
     let node = parse json_str in
 
-    (* parse json to ADT*)
+    (* parse json to Record*)
     let p =
         (node, empty) 
-            |> map (field_str "name" "") (fun v ast -> {ast with name = v})
-            |> map (field_int "age" 0) (fun v ast -> {ast with age = v})      
+            |> map (field_str "name" "") (fun v rd -> {rd with name = v})
+            |> map (field_int "age" 0) (fun v rd -> {rd with age = v})      
             |> data
     in
     print_string (">> name = " ^ p.name ^ ", age = " ^ (string_of_int p.age) ^ "\n");
 
-    (* or get a generic ADT *)
+    (* or get a generic Record *)
     let result: (string, int) fields = 
         node |> map2 (field_str "name" "") (field_int "age" 0) |> 
     in    

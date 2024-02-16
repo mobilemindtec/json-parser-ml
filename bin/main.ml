@@ -24,20 +24,20 @@ let json =
 
 let () =
   let tokens = tokenize (json |> String.to_seq |> List.of_seq) in
-  let node_ast = parse_tokens tokens in
-  print_ast node_ast;
+  let node = parse_tokens tokens in
+  print_ast node;
   let _ = print_string "\n" in
 
   let perrson =
     let empty = {name = ""; age = 0} in
-    (node_ast, empty) 
-      |> map (field_str "name" "") (fun v ast -> {ast with name = v})
-      |> map (field_int "age" 0) (fun v ast -> {ast with age = v})      
+    (node, empty) 
+      |> map (field_str "name" "") (fun v rd -> {rd with name = v})
+      |> map (field_int "age" 0) (fun v rd -> {rd with age = v})      
       |> data
   in
   print_string ("<< name = " ^ perrson.name ^ ", age = " ^ (string_of_int perrson.age) ^ "\n");
   let vals = 
-    let result: (string, int) field2 = node_ast |> map2 (field_str "name" "") (field_int "age" 0)  in
+    let result: (string, int) field2 = node |> map2 (field_str "name" "") (field_int "age" 0)  in
     result |> from_json (module Person_conv)    
   in
   print_string (">> name = " ^ vals.name ^ ", age = " ^ (string_of_int vals.age) ^ "\n");
